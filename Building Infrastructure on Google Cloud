@@ -1,0 +1,163 @@
+
+# Terraform Lab: Building Infrastructure on Google Cloud
+
+This document outlines the steps to build infrastructure on Google Cloud using Terraform, based on the provided lab instructions.
+
+## 🚀 Task 1: Verifying Terraform Installation
+
+Terraform comes pre-installed in Cloud Shell. Let's verify it.
+
+1.  **Open a new Cloud Shell tab.**
+2.  **Run the following command:**
+
+```bash
+terraform
+
+Expected Output: You should see the Terraform help output, similar to this:
+Usage: terraform [--version] [--help] [args]
+
+The available commands for execution are listed below. The most common, useful commands are shown first, followed by less common or more advanced commands. If you're just getting started with Terraform, stick with the common commands. For the other commands, please read the help and docs before usage.
+
+Common commands:
+  apply       Builds or changes infrastructure
+  console     Interactive console for Terraform interpolations
+  destroy     Destroy Terraform-managed infrastructure
+  env         Workspace management
+  fmt         Rewrites config files to canonical format
+  get         Download and install modules for the configuration
+  graph       Create a visual graph of Terraform resources
+  import      Import existing infrastructure into Terraform
+  init        Initialize a Terraform working directory
+  output      Read an output from a state file
+  plan        Generate and show an execution plan
+  providers   Prints a tree of the providers used in the configuration
+  push        Upload this Terraform module to Atlas to run
+  refresh     Update local state file against real resources
+  show        Inspect Terraform state or plan
+  taint       Manually mark a resource for recreation
+  untaint     Manually unmark a resource as tainted
+  validate    Validates the Terraform files
+  version     Prints the Terraform version
+  workspace   Workspace management
+
+All other commands:
+  debug       Debug output management (experimental)
+  force-unlock Manually unlock the terraform state
+  state       Advanced state management
+
+🏗️ Task 2: Building Infrastructure
+
+Now, let's build some infrastructure using Terraform.
+
+📝 Configuration
+
+Terraform configurations are sets of files that describe your infrastructure. We'll create a configuration to launch a single VM instance.
+
+Create an empty configuration file:
+touch instance.tf
+
+
+Open the instance.tf file in the Cloud Shell Editor. (Click "Open Editor" on the Cloud Shell toolbar).
+
+Add the following content to instance.tf:
+
+resource "google_compute_instance" "terraform" {
+  project = ""  # Replace with your Google Cloud Project ID
+  name = "terraform"
+  machine_type = "e2-medium"
+  zone = ""  # Replace with your desired zone
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+
+  network_interface {
+    network = "default"
+    access_config {
+    }
+  }
+}
+
+
+Important:
+
+Replace the project and zone values with your actual Google Cloud Project ID and desired zone.
+Verify the file:
+ls
+
+
+Ensure that instance.tf is present and there are no other .tf files you don't expect.
+
+⚙️ Initialization
+
+The terraform init command initializes your Terraform working directory.
+
+Run the initialization command:
+terraform init
+
+
+This will download the necessary provider plugins (in this case, the Google provider). You'll see output similar to:
+
+Initializing provider plugins...
+- Installing hashicorp/google v4.77.0...
+
+
+Note: Your version number may be higher.
+
+🔍 Execution Plan
+
+The terraform plan command creates an execution plan, showing what Terraform will do.
+
+Run the plan command:
+terraform plan
+
+
+This will show you the proposed changes to your infrastructure. Review the plan carefully to ensure it matches your expectations.
+
+✅ Apply Changes
+
+The terraform apply command applies the changes defined in your configuration.
+
+Run the apply command:
+terraform apply
+
+
+You'll see the execution plan again.
+
+Confirm the changes: Type yes when prompted to approve the changes.
+
+Terraform will now create the VM instance. This may take a few minutes.
+
+☁️ Verify in Google Cloud Console
+Navigate to Compute Engine > VM instances in the Google Cloud Console.
+You should see the terraform VM instance listed.
+📜 Inspect the State
+
+Terraform stores the state of your infrastructure in a terraform.tfstate file.
+
+Inspect the state:
+terraform show
+
+
+This will display the current state of your managed resources. You'll see details about the created VM instance.
+
+🤔 Task 3: Test Your Understanding
+
+Terraform enables you to safely and predictably create, change, and improve infrastructure.
+
+✅ True
+
+☐ False
+
+With Terraform, you can create your own custom provider plugins.
+
+✅ True
+
+☐ False
+
+🎉 Congratulations!
+
+You've successfully built your first infrastructure with Terraform on Google Cloud! You've learned about configuration syntax, execution plans, and the importance of the state file.
+
