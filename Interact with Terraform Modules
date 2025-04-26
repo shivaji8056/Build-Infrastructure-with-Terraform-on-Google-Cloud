@@ -1,111 +1,199 @@
 🌐 GCS Static Website Bucket Module
-🚀 Welcome to the GCS Static Website Bucket Module!
-This Terraform module provisions Google Cloud Storage buckets configured for static website hosting. It's designed to be reusable, composable, and flexible for your infrastructure needs.
+This repository contains step-by-step instructions for using Terraform modules, including how to:
+1️⃣ Use pre-existing modules from the Terraform Registry.
+2️⃣ Build your own module to create a static website hosted on Google Cloud Storage buckets.
 
-📖 Overview
-This module allows you to:
-✅ Create a Google Cloud Storage bucket.
-✅ Configure the bucket for static website hosting.
-✅ Set lifecycle rules, versioning, encryption, and retention policies.
-✅ Easily manage input variables and outputs.
+📝 Table of Contents
+Task 1: Use Modules from the Registry
+Task 2: Build a Module
+Clean Up
+License
+Task 1: Use Modules from the Registry
+Step 1: Clone the Example Project
+Run the following commands in your terminal:
 
-📂 File Structure
-├── LICENSE         # License information (Apache 2.0)
-├── README.md       # Documentation for the module
-├── website.tf      # Main configuration for the bucket resource
-├── variables.tf    # Input variable definitions
-├── outputs.tf      # Output definitions
-🔧 Features
-Static Website Hosting: Provision a bucket ready to host your static website.
-Lifecycle Rules: Automatically delete objects based on age or state.
-Versioning: Enable object versioning for better data management.
-Encryption: Use Cloud KMS keys for secure storage.
-Retention Policies: Define how long objects should be retained.
-🚀 Getting Started
-Prerequisites
-Install Terraform.
-Set up a Google Cloud Platform project.
-Enable the necessary APIs:
-Cloud Storage API
-IAM API
-🛠️ Usage
-Step 1: Add the module to your configuration
+git clone https://github.com/terraform-google-modules/terraform-google-network
+cd terraform-google-network
+git checkout tags/v6.0.1 -b v6.0.1
+Step 2: Open the Configuration Files
+Navigate to the example directory:
+
+cd examples/simple_project
+Open the main.tf file. It should look like this:
+
+module "test-vpc-module" {
+source       = "terraform-google-modules/network/google"
+version      = "~> 6.0"
+project_id   = var.project_id 
+network_name = "my-custom-mode-network"
+mtu          = 1460
+
+subnets = [
+  {
+    subnet_name   = "subnet-01"
+    subnet_ip     = "10.10.10.0/24"
+    subnet_region = "us-west1"
+  },
+  {
+    subnet_name           = "subnet-02"
+    subnet_ip             = "10.10.20.0/24"
+    subnet_region         = "us-west1"
+    subnet_private_access = "true"
+    subnet_flow_logs      = "true"
+  },
+  {
+    subnet_name               = "subnet-03"
+    subnet_ip                 = "10.10.30.0/24"
+    subnet_region             = "us-west1"
+    subnet_flow_logs          = "true"
+    subnet_flow_logs_interval = "INTERVAL_10_MIN"
+    subnet_flow_logs_sampling = 0.7
+    subnet_flow_logs_metadata = "INCLUDE_ALL_METADATA"
+    subnet_flow_logs_filter   = "false"
+  }
+]
+}
+Step 3: Define Input Variables
+Update the variables.tf file with your project details:
+
+variable "project_id" {
+description = "The project ID to host the network in"
+default     = "YOUR_PROJECT_ID"
+}
+
+variable "network_name" {
+description = "The name of the VPC network being created"
+default     = "example-vpc"
+}
+In the main.tf file, update the variables:
+
+project_id   = var.project_id
+network_name = var.network_name
+Step 4: Update Subnet Regions
+Replace us-west1 with your desired region (e.g., REGION) in the main.tf file:
+
+subnet_region = "REGION"
+Step 5: Define Output Values
+Verify the outputs.tf file contains the following:
+
+output "network_name" {
+value       = module.test-vpc-module.network_name
+description = "The name of the VPC being created"
+}
+
+output "network_self_link" {
+value       = module.test-vpc-module.network_self_link
+description = "The URI of the VPC being created"
+}
+
+output "project_id" {
+value       = module.test-vpc-module.project_id
+description = "VPC project id"
+}
+Step 6: Provision Infrastructure
+Initialize and apply the configuration:
+
+terraform init
+terraform apply
+Respond yes to the prompt. Once applied, you'll see outputs like:
+
+Outputs:
+network_name = "example-vpc"
+network_self_link = "https://www.googleapis.com/compute/v1/projects/YOUR_PROJECT_ID/global/networks/example-vpc"
+Step 7: Clean Up
+Destroy the infrastructure:
+
+terraform destroy
+Respond yes to the prompt. Then delete the cloned repository:
+
+cd ~
+rm -rf terraform-google-network
+Task 2: Build a Module
+Step 1: Create a Directory Structure
+Run the following commands:
+
+cd ~
+touch main.tf
+mkdir -p modules/gcs-static-website-bucket
+cd modules/gcs-static-website-bucket
+touch website.tf variables.tf outputs.tf README.md LICENSE
+Step 2: Add License and Documentation
+Add the following content to LICENSE:
+
+Licensed under the Apache License, Version 2.0 (the "License");
+http://www.apache.org/licenses/LICENSE-2.0
+Add the following content to README.md:
+
+# 🌐 GCS Static Website Bucket Module
+
+This module provisions Cloud Storage buckets configured for static website hosting.
+Step 3: Add the Bucket Resource
+In website.tf, add:
+
+resource "google_storage_bucket" "bucket" {
+name               = var.name
+project            = var.project_id
+location           = var.location
+storage_class      = var.storage_class
+labels             = var.labels
+force_destroy      = var.force_destroy
+uniform_bucket_level_access = true
+
+versioning {
+  enabled = var.versioning
+}
+}
+Step 4: Define Input Variables
+In variables.tf, add:
+
+variable "name" {
+description = "The name of the bucket."
+type        = string
+}
+
+variable "project_id" {
+description = "The ID of the project to create the bucket in."
+type        = string
+}
+
+variable "location" {
+description = "The location of the bucket."
+type        = string
+}
+Step 5: Define Outputs
+In outputs.tf, add:
+
+output "bucket" {
+description = "The created storage bucket"
+value       = google_storage_bucket.bucket
+}
+Step 6: Reference the Module
+In the root main.tf, reference the module:
+
 module "gcs-static-website-bucket" {
 source = "./modules/gcs-static-website-bucket"
 
 name       = var.name
 project_id = var.project_id
 location   = "REGION"
-
-lifecycle_rules = [{
-  action = {
-    type = "Delete"
-  }
-  condition = {
-    age        = 365
-    with_state = "ANY"
-  }
-}]
 }
-Step 2: Define input variables
-Add the following variables in your variables.tf file:
+Step 7: Initialize and Apply
+Initialize and apply the configuration:
 
-variable "project_id" {
-description = "The ID of the project in which to provision resources."
-type        = string
-default     = "YOUR_PROJECT_ID"
-}
-
-variable "name" {
-description = "Name of the bucket to create."
-type        = string
-default     = "YOUR_BUCKET_NAME"
-}
-Step 3: Initialize and apply the configuration
 terraform init
 terraform apply
-Respond yes to the prompt to provision the resources.
+Respond yes to the prompt.
 
-🌍 Hosting Your Website
-Upload your website files to the bucket:
-gsutil cp *.html gs://YOUR-BUCKET-NAME
-Access your website at:
-https://storage.cloud.google.com/YOUR-BUCKET-NAME/index.html
-📤 Outputs
-The module provides the following outputs:
-
-Output Name	Description
-bucket-name	The name of the created bucket.
-bucket	Full details of the created bucket resource.
-📝 Inputs
-Here are the key input variables:
-
-Variable Name	Description	Default Value
-name	The name of the bucket.	Required
-project_id	The ID of the project where the bucket will be created.	Required
-location	The location of the bucket.	"US"
-lifecycle_rules	Lifecycle rules for managing objects in the bucket.	[]
-versioning	Enable versioning for the bucket.	true
-force_destroy	Force destroy all objects when deleting the bucket.	true
-⚙️ Clean Up
-To destroy the resources created by this module:
+Clean Up
+To clean up all resources:
 
 terraform destroy
-Respond yes to the prompt to clean up your infrastructure.
+Respond yes to the prompt. Then delete the files:
 
+cd ~
+rm -rf modules
+rm main.tf variables.tf outputs.tf
 📜 License
 Licensed under the Apache License, Version 2.0. See the LICENSE file for more details.
 
-💡 Best Practices
-Always use modules to organize and encapsulate your code.
-Follow naming conventions for resources to avoid conflicts.
-Use version control systems like Git to track changes to your configurations.
-👩‍💻 Contributing
-We welcome contributions! Feel free to open issues or submit pull requests.
-
-🎉 Acknowledgments
-Special thanks to HashiCorp for their amazing tools and documentation.
-
-🛠️ Resources
-Terraform Documentation
-Google Cloud Storage Documentation
+Happy Terraforming! 🚀
