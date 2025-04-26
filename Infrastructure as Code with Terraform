@@ -1,0 +1,101 @@
+🌟 Task 1: Build Infrastructure with Terraform
+Welcome to Task 1: Build Infrastructure! 🚀 In this guide, you'll learn how to create basic infrastructure using Terraform. By the end of this task, you'll have successfully provisioned a VPC network on Google Cloud Platform (GCP). 🎉
+
+📋 Table of Contents
+📖 Overview
+🛠️ Prerequisites
+⚙️ Configuration Steps
+🚦 Execution
+📜 Verifying Your Work
+💡 Additional Notes
+📖 Overview
+Terraform is an Infrastructure as Code (IaC) tool that allows you to define and provision cloud resources in a declarative configuration language. 🛠️
+
+In this task, we will:
+
+Write a Terraform configuration file (main.tf) to create a VPC network.
+Initialize Terraform to download necessary plugins.
+Apply the configuration to deploy the infrastructure.
+🛠️ Prerequisites
+Before starting, ensure you have the following:
+
+✅ A GCP project set up.
+✅ Terraform installed on your system (pre-installed in Cloud Shell).
+✅ Access to Cloud Shell in the Google Cloud Console.
+⚙️ Configuration Steps
+1️⃣ Create a Terraform Configuration File
+Open Cloud Shell in your GCP console.
+Create an empty configuration file named main.tf:
+touch main.tf
+Open the file in the editor:
+Click Open Editor in the Cloud Shell toolbar.
+Navigate to main.tf and add the following content:
+terraform {
+  required_providers {
+    google = {
+      source  = "hashicorp/google"
+      version = "3.5.0"
+    }
+  }
+}
+
+provider "google" {
+  project = "PROJECT_ID"
+  region  = "REGION"
+  zone    = "ZONE"
+}
+
+resource "google_compute_network" "vpc_network" {
+  name = "terraform-network"
+}
+💡 Tip: Replace PROJECT_ID, REGION, and ZONE with your GCP project details.
+
+2️⃣ Verify the Configuration File
+Run the following command to list all .tf files in your directory:
+
+ls
+Ensure only main.tf exists in the directory.
+
+🚦 Execution
+1️⃣ Initialize Terraform
+Run the following command to initialize Terraform:
+
+terraform init
+This will:
+
+Download the required provider plugin (e.g., hashicorp/google).
+Set up local settings and data for Terraform.
+🔍 Output Example:
+
+Initializing provider plugins...
+Installing hashicorp/google v3.5.0...
+2️⃣ Apply the Configuration
+Apply the configuration to create the VPC network:
+
+terraform apply
+Review the Execution Plan output.
+Type yes when prompted to confirm.
+⏳ Note: It may take a few minutes for the VPC network to be created.
+
+📜 Verifying Your Work
+1️⃣ Check the VPC Network
+Go to the Google Cloud Console.
+Navigate to VPC Network from the Navigation menu.
+Verify that the terraform-network appears in the list.
+2️⃣ Inspect the Terraform State
+Terraform stores the state of your infrastructure in a file called terraform.tfstate. To inspect the current state, run:
+
+terraform show
+🔍 Example Output:
+
+# google_compute_network.vpc_network:
+resource "google_compute_network" "vpc_network" {
+  name                 = "terraform-network"
+  id                   = "terraform-network"
+  ...
+}
+💡 Additional Notes
+The terraform.tfstate file is critical for tracking the resources managed by Terraform. Do not delete or modify it manually.
+To destroy the infrastructure, use:
+terraform destroy
+🎉 Congratulations! You've successfully built your first infrastructure with Terraform. 🚀 Keep exploring and building more complex configurations!
