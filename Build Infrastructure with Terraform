@@ -1,0 +1,138 @@
+Below is a README.md file in an attractive and structured format for the provided task, complete with emojis and symbols to make it visually appealing:
+
+🌟 Build Infrastructure with Terraform
+
+Welcome to Task 2: Build Infrastructure! 🚀 In this guide, you'll learn how to create your first infrastructure using Terraform. By the end of this task, you'll have successfully launched a VM instance on Google Cloud Platform (GCP). 🎉
+
+📋 Table of Contents
+📖 Overview
+🛠️ Prerequisites
+⚙️ Configuration Steps
+🚦 Execution
+📜 Verifying Your Work
+💡 Additional Notes
+📖 Overview
+
+Terraform is an Infrastructure as Code (IaC) tool that allows you to define and provision cloud resources in a declarative configuration language. 🛠️
+
+In this task, we will:
+
+Write a Terraform configuration file (instance.tf) to launch a VM instance.
+Initialize Terraform to download necessary plugins.
+Create an execution plan and apply it to deploy the infrastructure.
+🛠️ Prerequisites
+
+Before starting, ensure you have the following:
+
+✅ A GCP project set up.
+✅ Terraform installed on your system.
+✅ Access to Cloud Shell in the Google Cloud Console.
+⚙️ Configuration Steps
+1️⃣ Create a Terraform Configuration File
+Open Cloud Shell in your GCP console.
+Create an empty configuration file named instance.tf:
+touch instance.tf
+
+Open the file in the editor:
+Click Open Editor in the Cloud Shell toolbar.
+Navigate to instance.tf and add the following content:
+resource "google_compute_instance" "terraform" {
+  project      = ""
+  name         = "terraform"
+  machine_type = "e2-medium"
+  zone         = ""
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+
+  network_interface {
+    network = "default"
+    access_config {}
+  }
+}
+
+
+💡 Tip: The resource block defines the VM instance, including its machine type, disk image, and network configuration.
+
+2️⃣ Verify the Configuration File
+
+Run the following command to list all .tf files in your directory:
+
+ls
+
+
+Ensure only instance.tf exists in the directory.
+
+🚦 Execution
+1️⃣ Initialize Terraform
+
+Run the following command to initialize Terraform:
+
+terraform init
+
+
+This will:
+
+Download the required provider plugin (e.g., hashicorp/google).
+Set up local settings and data for Terraform.
+
+🔍 Output Example:
+
+Initializing provider plugins...
+Installing hashicorp/google v4.77.0...
+
+2️⃣ Create an Execution Plan
+
+Generate an execution plan to preview the changes Terraform will make:
+
+terraform plan
+
+
+💡 Tip: Use the -out flag to save the plan for later execution:
+
+terraform plan -out=tfplan
+
+3️⃣ Apply the Changes
+
+Apply the execution plan to create the VM instance:
+
+terraform apply
+
+Review the Execution Plan output.
+Type yes when prompted to confirm.
+
+⏳ Note: It may take a few minutes for the VM instance to be created.
+
+📜 Verifying Your Work
+1️⃣ Check the VM Instance
+Go to the Google Cloud Console.
+Navigate to Compute Engine > VM Instances.
+Verify that the VM instance appears in the list.
+2️⃣ Inspect the Terraform State
+
+Terraform stores the state of your infrastructure in a file called terraform.tfstate. To inspect the current state, run:
+
+terraform show
+
+
+🔍 Example Output:
+
+# google_compute_instance.default:
+resource "google_compute_instance" "default" {
+  name                 = "terraform"
+  machine_type         = "e2-medium"
+  zone                 = "us-west1-c"
+  ...
+}
+
+💡 Additional Notes
+The terraform.tfstate file is critical for tracking the resources managed by Terraform. Do not delete or modify it manually.
+To destroy the infrastructure, use:
+terraform destroy
+
+
+🎉 Congratulations! You've successfully built your first infrastructure with Terraform. 🚀 Keep exploring and building more complex configurations!
+
