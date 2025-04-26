@@ -1,0 +1,111 @@
+🌐 GCS Static Website Bucket Module
+🚀 Welcome to the GCS Static Website Bucket Module!
+This Terraform module provisions Google Cloud Storage buckets configured for static website hosting. It's designed to be reusable, composable, and flexible for your infrastructure needs.
+
+📖 Overview
+This module allows you to:
+✅ Create a Google Cloud Storage bucket.
+✅ Configure the bucket for static website hosting.
+✅ Set lifecycle rules, versioning, encryption, and retention policies.
+✅ Easily manage input variables and outputs.
+
+📂 File Structure
+├── LICENSE         # License information (Apache 2.0)
+├── README.md       # Documentation for the module
+├── website.tf      # Main configuration for the bucket resource
+├── variables.tf    # Input variable definitions
+├── outputs.tf      # Output definitions
+🔧 Features
+Static Website Hosting: Provision a bucket ready to host your static website.
+Lifecycle Rules: Automatically delete objects based on age or state.
+Versioning: Enable object versioning for better data management.
+Encryption: Use Cloud KMS keys for secure storage.
+Retention Policies: Define how long objects should be retained.
+🚀 Getting Started
+Prerequisites
+Install Terraform.
+Set up a Google Cloud Platform project.
+Enable the necessary APIs:
+Cloud Storage API
+IAM API
+🛠️ Usage
+Step 1: Add the module to your configuration
+module "gcs-static-website-bucket" {
+source = "./modules/gcs-static-website-bucket"
+
+name       = var.name
+project_id = var.project_id
+location   = "REGION"
+
+lifecycle_rules = [{
+  action = {
+    type = "Delete"
+  }
+  condition = {
+    age        = 365
+    with_state = "ANY"
+  }
+}]
+}
+Step 2: Define input variables
+Add the following variables in your variables.tf file:
+
+variable "project_id" {
+description = "The ID of the project in which to provision resources."
+type        = string
+default     = "YOUR_PROJECT_ID"
+}
+
+variable "name" {
+description = "Name of the bucket to create."
+type        = string
+default     = "YOUR_BUCKET_NAME"
+}
+Step 3: Initialize and apply the configuration
+terraform init
+terraform apply
+Respond yes to the prompt to provision the resources.
+
+🌍 Hosting Your Website
+Upload your website files to the bucket:
+gsutil cp *.html gs://YOUR-BUCKET-NAME
+Access your website at:
+https://storage.cloud.google.com/YOUR-BUCKET-NAME/index.html
+📤 Outputs
+The module provides the following outputs:
+
+Output Name	Description
+bucket-name	The name of the created bucket.
+bucket	Full details of the created bucket resource.
+📝 Inputs
+Here are the key input variables:
+
+Variable Name	Description	Default Value
+name	The name of the bucket.	Required
+project_id	The ID of the project where the bucket will be created.	Required
+location	The location of the bucket.	"US"
+lifecycle_rules	Lifecycle rules for managing objects in the bucket.	[]
+versioning	Enable versioning for the bucket.	true
+force_destroy	Force destroy all objects when deleting the bucket.	true
+⚙️ Clean Up
+To destroy the resources created by this module:
+
+terraform destroy
+Respond yes to the prompt to clean up your infrastructure.
+
+📜 License
+Licensed under the Apache License, Version 2.0. See the LICENSE file for more details.
+
+💡 Best Practices
+Always use modules to organize and encapsulate your code.
+Follow naming conventions for resources to avoid conflicts.
+Use version control systems like Git to track changes to your configurations.
+👩‍💻 Contributing
+We welcome contributions! Feel free to open issues or submit pull requests.
+
+🎉 Acknowledgments
+Special thanks to HashiCorp for their amazing tools and documentation.
+
+🛠️ Resources
+Terraform Documentation
+Google Cloud Storage Documentation
