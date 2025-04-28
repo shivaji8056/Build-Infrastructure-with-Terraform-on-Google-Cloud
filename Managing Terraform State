@@ -1,0 +1,174 @@
+🌍 Terraform Lab on Google Cloud Platform (GCP)
+🚀 Overview
+This lab walks you through managing Terraform state, working with backends, and importing existing infrastructure into Terraform. By the end, you'll understand how Terraform tracks resources, manages state files, and handles imported configurations.
+
+🧩 Purpose of Terraform State
+🔗 Why is Terraform State Important?
+Terraform state acts as a database 📂 that maps your configuration to real-world resources. Without state, Terraform wouldn't know:
+
+Which cloud resources belong to which configuration.
+The dependencies between resources.
+The current attribute values of resources.
+⚙️ Key Features of Terraform State:
+Mapping Resources: Links Terraform configurations (main.tf) to actual cloud resources like VMs or storage buckets.
+Metadata Tracking: Keeps track of resource dependencies and provider configurations.
+Performance Optimization: Caches resource attributes to avoid querying every resource during terraform plan or terraform apply.
+Syncing Across Teams: Remote state ensures all team members work with the same state file.
+State Locking: Prevents simultaneous updates to the state file, avoiding corruption.
+🛠️ Task 1: Working with Backends
+💾 Step 1: Add a Local Backend
+Create the Configuration File:
+touch main.tf
+Retrieve Your Project ID:
+gcloud config list --format 'value(core.project)'
+Add the Cloud Storage Bucket Resource:
+provider "google" {
+  project = "# REPLACE WITH YOUR PROJECT ID"
+  region  = "REGION"
+}
+
+resource "google_storage_bucket" "test-bucket-for-state" {
+  name        = "# REPLACE WITH YOUR PROJECT ID"
+  location    = "US"
+  uniform_bucket_level_access = true
+}
+Configure the Local Backend:
+terraform {
+  backend "local" {
+    path = "terraform/state/terraform.tfstate"
+  }
+}
+Initialize Terraform:
+terraform init
+Apply the Changes:
+terraform apply
+Confirm with yes.
+
+Verify the State File:
+terraform show
+☁️ Step 2: Add a Cloud Storage Backend
+Update the Backend Configuration: Replace the local backend with the following:
+terraform {
+  backend "gcs" {
+    bucket = "# REPLACE WITH YOUR BUCKET NAME"
+    prefix = "terraform/state"
+  }
+}
+Reinitialize Terraform with State Migration:
+terraform init -migrate-state
+Confirm with yes.
+
+Verify the State File in Cloud Storage: Navigate to Cloud Console > Storage > Buckets and locate the terraform/state/default.tfstate file.
+🔄 Step 3: Refresh the State
+Add Labels to the Storage Bucket:
+In Cloud Console, click the bucket name.
+Go to the Labels tab and add:
+Key: key
+Value: value
+Refresh the State File:
+terraform refresh
+Examine Updates:
+terraform show
+🧹 Step 4: Clean Up Workspace
+Revert Backend to Local:
+terraform {
+  backend "local" {
+    path = "terraform/state/terraform.tfstate"
+  }
+}
+Reinitialize Terraform:
+terraform init -migrate-state
+Confirm with yes.
+
+Enable Force Destroy for the Bucket:
+resource "google_storage_bucket" "test-bucket-for-state" {
+  name        = "# REPLACE WITH YOUR PROJECT ID"
+  location    = "US"
+  uniform_bucket_level_access = true
+  force_destroy = true
+}
+Apply Changes:
+terraform apply
+Confirm with yes.
+
+Destroy Infrastructure:
+terraform destroy
+Confirm with yes.
+
+🛠️ Task 2: Import Terraform Configuration
+🐳 Step 1: Create a Docker Container
+Run an NGINX Container:
+docker run --name hashicorp-learn --detach --publish 8080:80 nginx:latest
+Verify the Container:
+docker ps
+Preview the Container:
+Click Web Preview in Cloud Shell.
+Select Preview on port 8080.
+📦 Step 2: Import the Container into Terraform
+Clone the Example Repository:
+git clone https://github.com/hashicorp/learn-terraform-import.git
+cd learn-terraform-import
+Initialize Terraform:
+terraform init
+Define an Empty Resource: In docker.tf, add:
+resource "docker_container" "web" {}
+Import the Container:
+terraform import docker_container.web $(docker inspect -f {{.ID}} hashicorp-learn)
+Verify Imported State:
+terraform show
+✏️ Step 3: Create Configuration
+Generate Configuration from State:
+terraform show -no-color > docker.tf
+Simplify Configuration: Keep only required attributes:
+resource "docker_container" "web" {
+    image = "sha256:87a94228f133e2da99cb16d653cd1373c5b4e8689956386c1c12b60a20421a02"
+    name  = "hashicorp-learn"
+    ports {
+        external = 8080
+        internal = 80
+        ip       = "0.0.0.0"
+        protocol = "tcp"
+    }
+}
+Apply Configuration:
+terraform apply
+Confirm with yes.
+
+🖼️ Step 4: Manage Docker Image
+Add Image Resource:
+resource "docker_image" "nginx" {
+  name = "nginx:latest"
+}
+Reference the Image in Container: Update docker_container.web:
+image = docker_image.nginx.image_id
+Apply Changes:
+terraform apply
+Confirm with yes.
+
+🔄 Step 5: Update Container Configuration
+Change External Port:
+ports {
+  external = 8081
+  internal = 80
+  ip       = "0.0.0.0"
+  protocol = "tcp"
+}
+Apply Changes:
+terraform apply
+Confirm with yes.
+
+Verify New Container:
+docker ps
+🧹 Step 6: Destroy Infrastructure
+Destroy All Resources:
+terraform destroy
+Confirm with yes.
+
+Verify Destruction:
+docker ps --filter "name=hashicorp-learn"
+🎉 Congratulations!
+You successfully:
+
+Managed Terraform backends and state files.
+Imported existing infrastructure into Terraform.
+Updated and managed Docker containers using Terraform.
